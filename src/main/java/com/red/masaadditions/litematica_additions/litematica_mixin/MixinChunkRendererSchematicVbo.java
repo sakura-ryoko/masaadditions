@@ -2,10 +2,7 @@ package com.red.masaadditions.litematica_additions.litematica_mixin;
 
 import com.red.masaadditions.litematica_additions.config.ConfigsExtended;
 import com.red.masaadditions.litematica_additions.util.MiscUtils;
-import fi.dy.masa.litematica.render.schematic.BufferBuilderCache;
-import fi.dy.masa.litematica.render.schematic.ChunkCacheSchematic;
-import fi.dy.masa.litematica.render.schematic.ChunkRenderDataSchematic;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
+import fi.dy.masa.litematica.render.schematic.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -28,7 +25,7 @@ public class MixinChunkRendererSchematicVbo {
     protected ChunkCacheSchematic schematicWorldView;
 
     @Inject(method = "renderBlocksAndOverlay", at = @At("HEAD"), cancellable = true)
-    private void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities, Set<RenderLayer> usedLayers, MatrixStack matrices, BufferBuilderCache buffers, CallbackInfo ci) {
+    private void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, BufferAllocatorCache allocators, Set<BlockEntity> tileEntities, Set<RenderLayer> usedLayers, MatrixStack matrixStack, CallbackInfo ci) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         ItemStack item = player != null ? player.getMainHandStack() : ItemStack.EMPTY;
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);

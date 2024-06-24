@@ -13,15 +13,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InGameHud.class)
 public class MixinInGameHud {
-    @Inject(method = "renderScoreboardSidebar", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", at = @At("HEAD"), cancellable = true)
     private void getOffsetType(DrawContext drawContext, ScoreboardObjective objective, CallbackInfo ci) {
         if (ConfigsExtended.Disable.DISABLE_SCOREBOARD_SIDEBAR_RENDERING.getBooleanValue()) {
             ci.cancel();
         }
     }
 
-    @ModifyConstant(method = "renderScoreboardSidebar", constant = @Constant(intValue = 15))
-    private int scoreboardSidebarMaxLength(int val) {
+    @ModifyConstant(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", constant = @Constant(longValue = 15))
+    private long scoreboardSidebarMaxLength(long val) {
         return ConfigsExtended.Generic.SCOREBOARD_SIDEBAR_MAX_LENGTH.getIntegerValue();
     }
 }

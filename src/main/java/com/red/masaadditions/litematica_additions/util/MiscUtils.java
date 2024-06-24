@@ -6,17 +6,21 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.PistonType;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.potion.PotionUtil;
+import net.minecraft.potion.Potion;
 import net.minecraft.potion.Potions;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MiscUtils {
     static final Item[] IGNORED_ITEMS_VALUES = new Item[] { Items.PISTON, Items.STICKY_PISTON, Items.WATER_BUCKET, Items.POTION, Items.LAVA_BUCKET, Items.POWDER_SNOW_BUCKET, Items.FLINT_AND_STEEL, Items.FIRE_CHARGE };
@@ -40,7 +44,7 @@ public class MiscUtils {
         } else if (stateSchematic.getFluidState().getFluid() == Fluids.WATER || stateSchematic.getFluidState().getFluid() == Fluids.FLOWING_WATER) {
             match = heldItem == Items.WATER_BUCKET;
         } else if (stateSchematic.getBlock() == Blocks.WATER_CAULDRON) {
-            match = heldItem == Items.POTION && PotionUtil.getPotion(heldItemStack) == Potions.WATER || (stateSchematic.get(LeveledCauldronBlock.LEVEL) == 3 && heldItem == Items.WATER_BUCKET);
+            match = heldItem == Items.POTION && getPotion(heldItemStack) == Potions.WATER || (stateSchematic.get(LeveledCauldronBlock.LEVEL) == 3 && heldItem == Items.WATER_BUCKET);
         } else if (stateSchematic.getFluidState().getFluid() == Fluids.LAVA || stateSchematic.getFluidState().getFluid() == Fluids.FLOWING_LAVA || stateSchematic.getBlock() == Blocks.LAVA_CAULDRON) {
             match = heldItem == Items.LAVA_BUCKET;
         } else if (stateSchematic.getBlock() == Blocks.POWDER_SNOW || stateSchematic.getBlock() == Blocks.POWDER_SNOW_CAULDRON) {
@@ -53,5 +57,11 @@ public class MiscUtils {
             match = heldItem == Items.WATER_BUCKET;
         }
         return !match && (Item.BLOCK_ITEMS.containsValue(heldItem) || IGNORED_ITEMS.contains(heldItem)) && heldItem != stateSchematic.getBlock().asItem();
+    }
+
+    private static Potion getPotion(ItemStack stack) {
+        ComponentMap components = stack.getComponents();
+        PotionContentsComponent potionComponent = components.get(DataComponentTypes.POTION_CONTENTS);
+        return potionComponent != null && potionComponent.potion().isPresent() ? potionComponent.potion().get().value() : null;
     }
 }

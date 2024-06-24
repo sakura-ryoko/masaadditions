@@ -3,7 +3,6 @@ package com.red.masaadditions.tweakeroo_additions.mixin;
 import com.red.masaadditions.tweakeroo_additions.config.FeatureToggleExtended;
 import com.red.masaadditions.tweakeroo_additions.util.MiscUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.screen.slot.SlotActionType;
@@ -26,7 +25,7 @@ public interface MixinEquipment {
             return;
         }
 
-        mc.interactionManager.clickSlot(user.playerScreenHandler.syncId, MiscUtils.getSlotNumberForEquipmentSlot(MobEntity.getPreferredEquipmentSlot(itemStack)), user.getInventory().selectedSlot, SlotActionType.SWAP, user);
+        mc.interactionManager.clickSlot(user.playerScreenHandler.syncId, MiscUtils.getSlotNumberForEquipmentSlot(user.getPreferredEquipmentSlot(itemStack)), user.getInventory().selectedSlot, SlotActionType.SWAP, user);
         cir.setReturnValue(TypedActionResult.success(itemStack, world.isClient()));
     }
 }

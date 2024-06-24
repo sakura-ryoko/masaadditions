@@ -18,7 +18,6 @@ public class MixinBlockItem {
     private ItemPlacementContext modifyPlacementContext(ItemPlacementContext context) {
         boolean useReplacementMode = HotkeysExtended.REPLACEMENT_MODE.getKeybind().isKeybindHeld()
             && tweakermore_areWeThePlayer(context)
-            && (context.getPlayer().hasPermissionLevel(2) || MinecraftClient.getInstance().isInSingleplayer())
             && !context.canReplaceExisting();
         if (useReplacementMode) {
             ((MixinItemPlacementContextAccessor) context).setCanReplaceExisting(true);

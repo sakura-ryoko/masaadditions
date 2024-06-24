@@ -7,6 +7,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.client.network.SequencedPacketCreator;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -14,11 +16,9 @@ import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.NameTagItem;
 import net.minecraft.item.SwordItem;
-import net.minecraft.network.message.ArgumentSignatureDataMap;
-import net.minecraft.network.message.LastSeenMessagesCollector;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -33,13 +33,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.stream.StreamSupport;
 
 @Mixin(ClientPlayerInteractionManager.class)
-public class MixinClientPlayerInteractionManager {
-    @Shadow @Final private ClientPlayNetworkHandler networkHandler;
+public abstract class MixinClientPlayerInteractionManager {
+    @Shadow
+    @Final
+    private ClientPlayNetworkHandler networkHandler;
 
     @Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
     private void handleBreakingRestriction1(BlockPos pos, Direction side, CallbackInfoReturnable<Boolean> cir) {
@@ -92,17 +92,8 @@ public class MixinClientPlayerInteractionManager {
     private void modifyPlacementPacket(MutableObject<ActionResult> result, ClientPlayerEntity player, Hand hand, BlockHitResult blockHitResult, int sequence, CallbackInfoReturnable<Packet<?>> cir) {
         if (PlacementTweaks.replacementModeUseStack != null) {
             if (!MinecraftClient.getInstance().isInSingleplayer()) {
-                List<String> commands = PlacementTweaks.getReplacementModeCommands(PlacementTweaks.replacementModeUseStack, sequence);
-                if (commands.isEmpty()) {
-                    // return some noop packet
-                    cir.setReturnValue(new PlayerMoveC2SPacket.OnGroundOnly(player.isOnGround()));
-                } else {
-                    for (int i = 0; i < commands.size() - 1; i++) {
-                        player.networkHandler.sendCommand(commands.get(i));
-                    }
-                    LastSeenMessagesCollector.LastSeenMessages lastSeenMessages = ((ClientPlayNetworkHandlerAccessor) player.networkHandler).getLastSeenMessagesCollector().collect();
-                    cir.setReturnValue(new CommandExecutionC2SPacket(commands.get(commands.size() - 1), Instant.now(), 0, ArgumentSignatureDataMap.EMPTY, lastSeenMessages.update()));
-                }
+                this.networkHandler.sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, blockHitResult.getBlockPos(), blockHitResult.getSide()));
+                cir.setReturnValue(new PlayerInteractBlockC2SPacket(hand, blockHitResult, sequence));
             }
             PlacementTweaks.replacementModeUseStack = null;
         }
