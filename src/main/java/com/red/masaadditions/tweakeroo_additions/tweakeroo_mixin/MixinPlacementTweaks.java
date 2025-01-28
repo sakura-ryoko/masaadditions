@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -71,7 +72,7 @@ public class MixinPlacementTweaks {
         return handleGridRestriction(pos, side, posFirst, sideFirst, restrictionEnabled, mode, gridEnabled, gridSize);
     }
 
-    @Redirect(method = "isPositionAllowedByPlacementRestriction", at = @At(value = "INVOKE", target = "Lfi/dy/masa/tweakeroo/tweaks/PlacementTweaks;isPositionAllowedByRestrictions(Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;ZLfi/dy/masa/tweakeroo/util/PlacementRestrictionMode;ZI)Z"), require = 0)
+    @Redirect(method = "isPositionAllowedByPlacementRestriction", at = @At(value = "INVOKE", target = "Lfi/dy/masa/tweakeroo/tweaks/PlacementTweaks;isPositionAllowedByRestrictions(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;ZLfi/dy/masa/tweakeroo/util/PlacementRestrictionMode;ZI)Z"), require = 0)
     private static boolean isPositionAllowedByPlacementRestriction2(BlockPos pos, Direction side, BlockPos posFirst, Direction sideFirst, boolean restrictionEnabled, PlacementRestrictionMode mode, boolean gridEnabled, int gridSize)
     {
         return handleGridRestriction(pos, side, posFirst, sideFirst, restrictionEnabled, mode, gridEnabled, gridSize);
@@ -83,12 +84,13 @@ public class MixinPlacementTweaks {
         return handleGridRestriction(pos, side, posFirst, sideFirst, restrictionEnabled, mode, gridEnabled, gridSize);
     }
 
-    @Redirect(method = "isPositionAllowedByBreakingRestriction", at = @At(value = "INVOKE", target = "Lfi/dy/masa/tweakeroo/tweaks/PlacementTweaks;isPositionAllowedByRestrictions(Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;ZLfi/dy/masa/tweakeroo/util/PlacementRestrictionMode;ZI)Z"), require = 0)
+    @Redirect(method = "isPositionAllowedByBreakingRestriction", at = @At(value = "INVOKE", target = "Lfi/dy/masa/tweakeroo/tweaks/PlacementTweaks;isPositionAllowedByRestrictions(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;ZLfi/dy/masa/tweakeroo/util/PlacementRestrictionMode;ZI)Z"), require = 0)
     private static boolean isPositionAllowedByBreakingRestriction2(BlockPos pos, Direction side, BlockPos posFirst, Direction sideFirst, boolean restrictionEnabled, PlacementRestrictionMode mode, boolean gridEnabled, int gridSize)
     {
         return handleGridRestriction(pos, side, posFirst, sideFirst, restrictionEnabled, mode, gridEnabled, gridSize);
     }
 
+    @Unique
     private static boolean handleGridRestriction(BlockPos pos, Direction side, BlockPos posFirst, Direction sideFirst, boolean restrictionEnabled, PlacementRestrictionMode mode, boolean gridEnabled, int gridSize)
     {
         if (gridEnabled)

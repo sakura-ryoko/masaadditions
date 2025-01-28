@@ -9,23 +9,32 @@ plugins {
     id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
-
+base {
+    archivesName = project.archives_base_name
+    version = project.mod_version
+    group = project.maven_group
+}
 repositories {
-    maven { url "https://www.cursemaven.com" }
-    maven { url "https://masa.dy.fi/maven" }
-
+    maven { url = "https://www.cursemaven.com" }
+    maven { url = "https://masa.dy.fi/maven" }
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://maven.fallenbreath.me/releases' }
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/masaadditions.aw")
+
+    def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
+	// [FEATURE] MIXIN_AUDITOR
+	runs {
+		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
+		clientMixinAudit {
+			client()
+			vmArgs auditVmArgs
+			ideConfigGenerated false
+		}
+	}
 }
 
 dependencies {
@@ -53,6 +62,7 @@ dependencies {
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
+    modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
 }
 
 processResources {

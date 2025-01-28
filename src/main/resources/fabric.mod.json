@@ -30,8 +30,15 @@
   "depends": {
   },
   "suggests": {
-    "tweakeroo": "*",
-    "minihud": "*",
-    "malilib": "*"
+    "tweakeroo": ">=0.21.56",
+    "minihud": ">=0.32.56",
+    "litematica": ">=0.19.55",
+    "malilib": ">=0.21.6"
+  },
+  "breaks": {
+    "tweakeroo": "<0.21.56",
+    "minihud": "<0.32.56",
+    "litematica": "<0.19.55",
+    "malilib": "<0.21.6"
   }
 }
