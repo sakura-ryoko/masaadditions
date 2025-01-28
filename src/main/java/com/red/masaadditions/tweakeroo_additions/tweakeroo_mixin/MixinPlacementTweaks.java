@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -89,6 +90,7 @@ public class MixinPlacementTweaks {
         return handleGridRestriction(pos, side, posFirst, sideFirst, restrictionEnabled, mode, gridEnabled, gridSize);
     }
 
+    @Unique
     private static boolean handleGridRestriction(BlockPos pos, Direction side, BlockPos posFirst, Direction sideFirst, boolean restrictionEnabled, PlacementRestrictionMode mode, boolean gridEnabled, int gridSize)
     {
         if (gridEnabled)
