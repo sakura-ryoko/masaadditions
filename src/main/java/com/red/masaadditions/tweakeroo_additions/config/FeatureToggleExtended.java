@@ -2,6 +2,8 @@ package com.red.masaadditions.tweakeroo_additions.config;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.red.masaadditions.MasaAdditions;
+
 import fi.dy.masa.malilib.config.ConfigType;
 import fi.dy.masa.malilib.config.IConfigBoolean;
 import fi.dy.masa.malilib.config.IConfigNotifiable;
@@ -13,65 +15,110 @@ import fi.dy.masa.malilib.hotkeys.KeybindMulti;
 import fi.dy.masa.malilib.hotkeys.KeybindSettings;
 import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.tweakeroo.Reference;
 import fi.dy.masa.tweakeroo.Tweakeroo;
 
 public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable<IConfigBoolean> {
-    TWEAK_ALWAYS_RENDER_BARRIER_PARTICLES("tweakAlwaysRenderBarrierParticles", false, "", "Barrier block particles will always be rendered regardless of\nthe player's current gamemode and held item if enabled."),
-    TWEAK_BLOCK_BREAKING_PARTICLES("tweakBlockBreakingParticleTweaks", false, "", "Allows tweaking the block breaking particles, such as reducing the number\nof particles produced per block broken.\nSet the limit in Generic -> 'Block Breaking Particle Limit'.\nPorted from 1.12 Tweakeroo."),
-    TWEAK_FORCE_SWAP_GEAR("tweakForceSwapGear", false, "", "Allows the player to equip an armor piece in their main hand by\nright clicking while sneaking even if the player already has\narmor in the respective armor slot. This also works with elytras."),
-    TWEAK_INSANE_BLOCK_BREAKING_PARTICLES("tweakInsaneBlockBreakingParticles", false, "", "Changes block breaking particles to have no gravity and increased velocity.\nThis feature is originally from UsefulMod by nessie."),
-    TWEAK_ITEM_NAME_COPY("tweakItemNameCopy", false, "", "Sets item name in anvil to string stored in clipboard."),
-    TWEAK_LLAMA_STEERING("tweakLlamaSteering", false, "", "Allows the player to control Llamas while riding them.\nPorted from 1.12 Tweakeroo."),
-    TWEAK_MOVEMENT_HOLD("tweakMovementHold", false, "", KeybindSettings.PRESS_ALLOWEXTRA, "Emulates holding down the movement keys that were\ncurrently pressed when the tweak is enabled."),
-    TWEAK_NAME_TAG_PIGLINS("tweakNameTagPiglins", false, "", "Only allows player to use name tags on piglins holding swords"),
-    TWEAK_ONE_HIT_KILL("tweakOneHitKill", false, "", "Enables one hit killing attacked living entities if player is in creative.\nRequires operator permission to use /kill."),
-    TWEAK_OVERRIDE_SKY_TIME("tweakOverrideSkyTime", false, "", "Overrides the day time used for rendering the sky.\nInspired by tweakDayCycleOverride in Tweakfork by Andrews54757.\nAllows you to see the actual time through mods such as MiniHUD\nor using the Clock item unlike tweakDayCycleOverride."),
-    TWEAK_OVERRIDE_WINDOW_TITLE("tweakOverrideWindowTitle", false, "", "Replaces the current window title with the string\nspecified in the Window Title Override generic config."),
-    TWEAK_PERIMETER_WALL_DIG_HELPER("tweakPerimeterWallDigHelper", false, "", "Prevents player from mining underneath the block types\nspecified in the Perimeter Outline Blocks list."),
-    TWEAK_PREVENT_ATTACK_ENTITIES("tweakPreventAttackEntities", false, "", "Prevents player from attacking entities with the entity types\nspecified in the Prevent Attack Entities list."),
-    TWEAK_RAINBOW_LEAVES("tweakRainbowLeaves", false, "", "Makes leaves more colorful.\nThis feature is originally from UsefulMod by nessie."),
-    TWEAK_RESPAWN_ON_DEATH("tweakRespawnOnDeath", false, "", "Enables automatic respawning on death.\nThis feature is originally from UsefulMod by nessie.");
+    TWEAK_ALWAYS_RENDER_BARRIER_PARTICLES("tweakAlwaysRenderBarrierParticles", false, ""),
+    TWEAK_BLOCK_BREAKING_PARTICLES("tweakBlockBreakingParticleTweaks", false, ""),
+    TWEAK_FORCE_SWAP_GEAR("tweakForceSwapGear", false, ""),
+    TWEAK_INSANE_BLOCK_BREAKING_PARTICLES("tweakInsaneBlockBreakingParticles", false, ""),
+    TWEAK_ITEM_NAME_COPY("tweakItemNameCopy", false, ""),
+    TWEAK_LLAMA_STEERING("tweakLlamaSteering", false, ""),
+    TWEAK_MOVEMENT_HOLD("tweakMovementHold", false, "", KeybindSettings.PRESS_ALLOWEXTRA),
+    TWEAK_NAME_TAG_PIGLINS("tweakNameTagPiglins", false, ""),
+    TWEAK_ONE_HIT_KILL("tweakOneHitKill", false, ""),
+    TWEAK_OVERRIDE_SKY_TIME("tweakOverrideSkyTime", false, ""),
+    TWEAK_OVERRIDE_WINDOW_TITLE("tweakOverrideWindowTitle", false, ""),
+    TWEAK_PERIMETER_WALL_DIG_HELPER("tweakPerimeterWallDigHelper", false, ""),
+    TWEAK_PREVENT_ATTACK_ENTITIES("tweakPreventAttackEntities", false, ""),
+    TWEAK_RAINBOW_LEAVES("tweakRainbowLeaves", false, ""),
+    TWEAK_RESPAWN_ON_DEATH("tweakRespawnOnDeath", false, "");
+
+    // todo add i18n entries to en_us.json from now on; this is the config key prefix
+    private final static String FEATURE_KEY = MasaAdditions.MOD_ID+ ".config.feature_toggle_extended";
 
     private final String name;
-    private final String comment;
-    private final String prettyName;
+    private String comment;
+    private String prettyName;
+    private String translatedName;
     private final IKeybind keybind;
     private final boolean defaultValueBoolean;
     private final boolean singlePlayer;
     private boolean valueBoolean;
     private IValueChangeCallback<IConfigBoolean> callback;
 
+    FeatureToggleExtended(String name, boolean defaultValue, String defaultHotkey) {
+        this(name, defaultValue, false, defaultHotkey, KeybindSettings.DEFAULT,
+             buildTranslateName(name, "comment"),
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
+    }
+
+    FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey) {
+        this(name, defaultValue, singlePlayer, defaultHotkey, KeybindSettings.DEFAULT,
+             buildTranslateName(name, "comment"),
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
+    }
+
+    FeatureToggleExtended(String name, boolean defaultValue, String defaultHotkey, KeybindSettings settings) {
+        this(name, defaultValue, false, defaultHotkey, settings,
+             buildTranslateName(name, "comment"),
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
+    }
+
     FeatureToggleExtended(String name, boolean defaultValue, String defaultHotkey, String comment) {
-        this(name, defaultValue, false, defaultHotkey, KeybindSettings.DEFAULT, comment);
+        this(name, defaultValue, false, defaultHotkey, KeybindSettings.DEFAULT,
+             comment,
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
     }
 
     FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey, String comment) {
-        this(name, defaultValue, singlePlayer, defaultHotkey, KeybindSettings.DEFAULT, comment);
+        this(name, defaultValue, singlePlayer, defaultHotkey, KeybindSettings.DEFAULT,
+             comment,
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
     }
 
     FeatureToggleExtended(String name, boolean defaultValue, String defaultHotkey, KeybindSettings settings, String comment) {
-        this(name, defaultValue, false, defaultHotkey, settings, comment);
+        this(name, defaultValue, false, defaultHotkey, settings,
+             comment,
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
     }
 
     FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey, KeybindSettings settings, String comment) {
-        this(name, defaultValue, singlePlayer, defaultHotkey, settings, comment, StringUtils.splitCamelCase(name.substring(5)));
+        this(name, defaultValue, singlePlayer, defaultHotkey, settings,
+             comment,
+             buildTranslateName(name, "prettyName"),
+             buildTranslateName(name, "name"));
     }
 
     FeatureToggleExtended(String name, boolean defaultValue, String defaultHotkey, String comment, String prettyName) {
-        this(name, defaultValue, false, defaultHotkey, comment, prettyName);
+        this(name, defaultValue, false, defaultHotkey, KeybindSettings.DEFAULT,
+             comment,
+             prettyName,
+             buildTranslateName(name, "name"));
     }
 
     FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey, String comment, String prettyName) {
-        this(name, defaultValue, singlePlayer, defaultHotkey, KeybindSettings.DEFAULT, comment, prettyName);
+        this(name, defaultValue, singlePlayer, defaultHotkey, KeybindSettings.DEFAULT,
+             comment,
+             prettyName,
+             buildTranslateName(name, "name"));
     }
 
-    FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey, KeybindSettings settings, String comment, String prettyName) {
+    FeatureToggleExtended(String name, boolean defaultValue, boolean singlePlayer, String defaultHotkey, KeybindSettings settings, String comment, String prettyName, String translatedName) {
         this.name = name;
         this.valueBoolean = defaultValue;
         this.defaultValueBoolean = defaultValue;
         this.singlePlayer = singlePlayer;
         this.comment = comment;
         this.prettyName = prettyName;
+        this.translatedName = translatedName;
         this.keybind = KeybindMulti.fromStorageString(defaultHotkey, settings);
         this.keybind.setCallback(new KeyCallbackToggleBooleanConfigWithMessage(this));
     }
@@ -83,21 +130,59 @@ public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable
 
     @Override
     public String getName() {
+        if (this.singlePlayer) {
+            return GuiBase.TXT_GOLD + this.getName() + GuiBase.TXT_RST;
+        }
+
         return this.name;
     }
 
     @Override
     public String getConfigGuiDisplayName() {
+        String name = StringUtils.getTranslatedOrFallback(this.translatedName, this.name);
+
         if (this.singlePlayer) {
-            return GuiBase.TXT_GOLD + this.getName() + GuiBase.TXT_RST;
+            name = GuiBase.TXT_GOLD + name + GuiBase.TXT_RST;
         }
 
-        return this.getName();
+        return name;
+    }
+
+    private static String buildTranslateName(String name, String type) {
+        return FEATURE_KEY + "." + type + "." + name;
+    }
+
+    @Override
+    public String getTranslatedName() {
+        String name = StringUtils.getTranslatedOrFallback(this.translatedName, this.name);
+
+        if (this.singlePlayer) {
+            name = GuiBase.TXT_GOLD + name + GuiBase.TXT_RST;
+        }
+
+        return name;
+    }
+
+    @Override
+    public void setPrettyName(String prettyName) {
+        this.prettyName = prettyName;
+    }
+
+    @Override
+    public void setTranslatedName(String translatedName) {
+        this.translatedName = translatedName;
+    }
+
+    @Override
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override
     public String getPrettyName() {
-        return this.prettyName;
+        return StringUtils.getTranslatedOrFallback(this.prettyName,
+                                                   !this.prettyName.isEmpty() ? this.prettyName
+                                                   : StringUtils.splitCamelCase(this.name.substring(5)));
     }
 
     @Override
@@ -128,15 +213,13 @@ public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable
 
     @Override
     public String getComment() {
-        if (this.comment == null) {
-            return "";
+        String comment = StringUtils.getTranslatedOrFallback(this.comment, this.comment);
+
+        if (comment != null && this.singlePlayer) {
+            return comment + "\n" + StringUtils.translate("tweakeroo.label.config_comment.single_player_only");
         }
 
-        if (this.singlePlayer) {
-            return this.comment + "\n" + StringUtils.translate("tweakeroo.label.config_comment.single_player_only");
-        } else {
-            return this.comment;
-        }
+        return comment;
     }
 
     @Override
@@ -190,10 +273,10 @@ public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable
             if (element.isJsonPrimitive()) {
                 this.valueBoolean = element.getAsBoolean();
             } else {
-                Tweakeroo.logger.warn("Failed to set config value for '{}' from the JSON element '{}'", this.getName(), element);
+                MasaAdditions.logger.warn("Failed to set config value for '{}' from the JSON element '{}'", this.getName(), element);
             }
         } catch (Exception e) {
-            Tweakeroo.logger.warn("Failed to set config value for '{}' from the JSON element '{}'", this.getName(), element, e);
+            MasaAdditions.logger.warn("Failed to set config value for '{}' from the JSON element '{}'", this.getName(), element, e);
         }
     }
 }
