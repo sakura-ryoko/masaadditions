@@ -30,15 +30,15 @@
   "depends": {
   },
   "suggests": {
-    "tweakeroo": ">=0.21.56",
-    "minihud": ">=0.32.56",
-    "litematica": ">=0.19.55",
-    "malilib": ">=0.21.6"
+    "tweakeroo": ">=0.21.55",
+    "minihud": ">=0.32.54",
+    "litematica": ">=0.19.54",
+    "malilib": ">=0.21.5"
   },
   "breaks": {
-    "tweakeroo": "<0.21.56",
-    "minihud": "<0.32.56",
-    "litematica": "<0.19.55",
-    "malilib": "<0.21.6"
+    "tweakeroo": "<0.21.55",
+    "minihud": "<0.32.54",
+    "litematica": "<0.19.54",
+    "malilib": "<0.21.5"
   }
 }

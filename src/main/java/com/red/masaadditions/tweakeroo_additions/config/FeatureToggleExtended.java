@@ -15,8 +15,6 @@ import fi.dy.masa.malilib.hotkeys.KeybindMulti;
 import fi.dy.masa.malilib.hotkeys.KeybindSettings;
 import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
 import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.tweakeroo.Reference;
-import fi.dy.masa.tweakeroo.Tweakeroo;
 
 public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable<IConfigBoolean> {
     TWEAK_ALWAYS_RENDER_BARRIER_PARTICLES("tweakAlwaysRenderBarrierParticles", false, ""),
@@ -35,7 +33,6 @@ public enum FeatureToggleExtended implements IHotkeyTogglable, IConfigNotifiable
     TWEAK_RAINBOW_LEAVES("tweakRainbowLeaves", false, ""),
     TWEAK_RESPAWN_ON_DEATH("tweakRespawnOnDeath", false, "");
 
-    // todo add i18n entries to en_us.json from now on; this is the config key prefix
     private final static String FEATURE_KEY = MasaAdditions.MOD_ID+ ".config.feature_toggle_extended";
 
     private final String name;
